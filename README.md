@@ -31,6 +31,7 @@ That's basically all.
 
 # Synopsis
 
+```javascript
     const jump = new ArrowSM({
         ground: twr => { if (twr > 1) return 'air' },
         air: () => 'ground'
@@ -44,5 +45,5 @@ That's basically all.
     jump.state; // air
     jump(2.5);
     jump.state; // ground again
-
+```
 
