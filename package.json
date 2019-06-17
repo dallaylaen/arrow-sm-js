@@ -1,0 +1,23 @@
+{
+  "name": "jrna",
+  "version": "1.0.0",
+  "description": "Finite state machine",
+  "main": "lib/arrow-sm.js",
+  "directories": {
+    "example": "example",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "nyc mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dallaylaen/arrow-sm-js.git"
+  },
+  "author": "Konstantin Uvarin",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dallaylaen/arrow-sm-js/issues"
+  },
+  "homepage": "https://github.com/dallaylaen/arrow-sm-js#readme"
+}
