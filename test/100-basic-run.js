@@ -163,4 +163,33 @@ describe( 'ArrowSM', () => {
 
         done();
     });
+
+    it( 'is bindable', done => {
+        const foo = { bar : 42 };
+        let count = 0;
+        const check = function(o) {
+            expect(o).to.equal(foo);
+            count++;
+        };
+
+        const sm = new ArrowSM( {
+            one: {
+                decide: function () { check(this); return 'two'; },
+                leave:  function () { check(this); },
+            },
+            two: {
+                enter:  function () { check(this); },
+                decide: ev => { throw 'final state' }
+            }
+        })
+        .onSwitch( function() { check(this); })
+        .start('one');
+
+        expect( sm.state ).to.equal('one');
+        sm.bind(foo)(137);
+        expect( sm.state ).to.equal('two');
+        expect(count).to.equal(4); // no callbacks were omitted by accident
+
+        done();
+    });
 });
