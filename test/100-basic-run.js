@@ -139,5 +139,28 @@ describe( 'ArrowSM', () => {
 
         done();
     });
-});
 
+    it( 'can access state in decider', done => {
+        const decide = (to, from) => { if (to !== from) return to };
+        const trace = [];
+        const enter = (from, to) => { trace.push(to) };
+
+        const sticky = new ArrowSM({
+            one: { decide, enter },
+            two: { decide, enter },
+            three: {decide, enter }
+        }).start('one');
+
+        trace.should.deep.equal(['one']);
+
+        sticky('one');
+        trace.should.deep.equal(['one']);
+
+        sticky('two');
+        trace.should.deep.equal(['one', 'two']);
+
+        expect( () => sticky('four') ).to.throw(/[Ii]llegal .*four/);
+
+        done();
+    });
+});
