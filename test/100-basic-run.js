@@ -94,6 +94,30 @@ describe( 'ArrowSM', () => {
 
         done();
     });
+    it( 'supports onDecide', done => {
+        const sm = new ArrowSM({
+            stand: () => 'go',
+            go:    () => 'run',
+            run:   () => 'fly',
+            fly:   () => 'orbit',
+            orbit: { final: true }
+        });
+        sm.onDecide( todo => { if ( todo === 0 ) return 'stand' } );
+
+        const ship1 = sm.start('stand');
+        ship1(1);
+        expect( ship1.state ).to.equal('go');
+        ship1(1);
+        expect( ship1.state ).to.equal('run');
+        ship1(0);
+        expect( ship1.state ).to.equal('stand');
+
+        const ship2 = sm.start('orbit');
+        ship2(1);
+        expect( ship2.state ).to.equal('orbit');
+
+        done();
+    });
 
     it( 'forbids dupe states', done => {
         const sm = new ArrowSM({ myname: () => 'myname' });

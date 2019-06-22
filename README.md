@@ -46,4 +46,40 @@ That's basically all.
     jump(2.5);
     jump.state; // ground again
 ```
+# Callback order
+
+## onDecide( arg, oldState )
+
+`onDecide` may be used to:
+
+* typecheck the event;
+
+* initiate transitions shared by multiple states
+(i.e. 'reset' event that switches the machine to ground state).
+
+If a value is returned by `onDecide`, `decide` is omitted (aka short-circuit).
+
+## oldState.decide( arg, oldState )
+
+`decide` is the central point of the SM.
+It receives the event and returns new state.
+An `undefined` return means no transition is needed.
+
+## oldState.leave( oldState, newState, arg )
+
+`leave` is called upon transition from a state.
+
+## newState.enter( oldState, newState, arg )
+
+`enter` is called upon entering the state.
+
+## onSwitch( oldState, newState, arg )
+
+`onSwitch` is a final transition stage common to all states, e.g.
+
+    sm.onSwitch( (from, to) => console.log('DEBUG transition '+from+'->'+to) )
+
+Only after this last callback, the `state` property is updated.
+Exception in any of the above functions interrupts the transition
+and is thrown back to the user.
 
