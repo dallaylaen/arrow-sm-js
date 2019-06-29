@@ -43,17 +43,17 @@ describe( 'ArrowSM', () => {
             .addState( 2, { decide: ev => { if(ev) return 1 }, enter: enter('two') } )
             .start(1);
 
-        trace.should.deep.equal([['one', undefined, 1, undefined]]);
+        trace.should.deep.equal([['one', undefined, undefined, 1]]);
 
         trace = [];
         sm(0);
-        trace.should.deep.equal([['two', 1, 2, 0]]);
+        trace.should.deep.equal([['two', 0, 1, 2]]);
         sm(0);
-        trace.should.deep.equal([['two', 1, 2, 0]]);
+        trace.should.deep.equal([['two', 0, 1, 2]]);
 
         trace = [];
         sm(42);
-        trace.should.deep.equal([['one', 2, 1, 42]]);
+        trace.should.deep.equal([['one', 42, 2, 1]]);
 
         done();
     });
@@ -74,7 +74,7 @@ describe( 'ArrowSM', () => {
         trace.should.deep.equal([]);
 
         sm(42);
-        trace.should.deep.equal([['one', 1, 2, 42]]);
+        trace.should.deep.equal([['one', 42, 1, 2]]);
 
         done();
     });
@@ -85,7 +85,7 @@ describe( 'ArrowSM', () => {
             1: () => 2,
             2: () => 1
         })
-        .onSwitch((from, to) => trace.push(from+'->'+to))
+        .onSwitch((arg, from, to) => trace.push(from+'->'+to))
         .start(1);
 
         sm();
@@ -133,7 +133,7 @@ describe( 'ArrowSM', () => {
             life: () => 'hell',
             hell: {
                 decide: () => 'hell',
-                enter: (o,n,e) => { if (e === 'hope') throw 'cannot enter hell with hope' }
+                enter: (e,o,n) => { if (e === 'hope') throw 'cannot enter hell with hope' }
             }
         }).start('life');
 
@@ -167,7 +167,7 @@ describe( 'ArrowSM', () => {
     it( 'can access state in decider', done => {
         const decide = (to, from) => { if (to !== from) return to };
         const trace = [];
-        const enter = (from, to) => { trace.push(to) };
+        const enter = (trigger, from, to) => { trace.push(to) };
 
         const sticky = new ArrowSM({
             one: { decide, enter },

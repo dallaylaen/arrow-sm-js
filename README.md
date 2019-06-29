@@ -48,7 +48,7 @@ That's basically all.
 ```
 # Callback order
 
-## onDecide( arg, oldState )
+## onDecide( trigger, oldState )
 
 `onDecide` may be used to:
 
@@ -59,21 +59,21 @@ That's basically all.
 
 If a value is returned by `onDecide`, `decide` is omitted (aka short-circuit).
 
-## oldState.decide( arg, oldState )
+## oldState.decide( trigger, oldState )
 
 `decide` is the central point of the SM.
-It receives the event and returns new state.
+It receives the event(trigger, argument) and returns new state.
 An `undefined` return means no transition is needed.
 
-## oldState.leave( oldState, newState, arg )
+## oldState.leave( trigger, oldState, newState )
 
 `leave` is called upon transition from a state.
 
-## newState.enter( oldState, newState, arg )
+## newState.enter( trigger, oldState, newState )
 
 `enter` is called upon entering the state.
 
-## onSwitch( oldState, newState, arg )
+## onSwitch( trigger, oldState, newState )
 
 `onSwitch` is a final transition stage common to all states, e.g.
 
