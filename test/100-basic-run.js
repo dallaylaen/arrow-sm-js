@@ -100,13 +100,16 @@ describe( 'ArrowSM', () => {
     });
 
     it( 'supports onSwitch', done => {
-        const trace = [];
+        let trace = [];
         const sm = new ArrowSM({
             1: () => 2,
             2: () => 1
         })
         .onSwitch((arg, from, to) => trace.push(from+'->'+to))
         .start(1);
+
+        trace.should.deep.equal(['undefined->1']);
+        trace = [];
 
         sm(42);
         sm.state.should.equal(2);
@@ -218,15 +221,15 @@ describe( 'ArrowSM', () => {
 
         const sm = new ArrowSM( {
             one: {
-                decide: function () { check(this); return 'two'; },
-                leave:  function () { check(this); },
+                decide: function(ev) { if (ev) check(this); return 'two'; },
+                leave:  function(ev) { if (ev) check(this); },
             },
             two: {
-                enter:  function () { check(this); },
-                decide: ev => { throw 'final state' }
+                enter:  function(ev) { if (ev) check(this); },
+                decide: function(ev) { throw 'final state' }
             }
         })
-        .onSwitch( function() { check(this); })
+        .onSwitch( function(ev) { if (ev) check(this); })
         .start('one');
 
         expect( sm.state ).to.equal('one');
