@@ -27,6 +27,9 @@ describe( 'ArrowSM', () => {
         sm1.state.should.equal('awake');
         sm2.state.should.equal('sleep');
 
+        expect( sm1() ).to.equal( sm1.state );
+        expect( sm2() ).to.equal( sm2.state );
+
         done();
     });
 
@@ -105,7 +108,7 @@ describe( 'ArrowSM', () => {
         .onSwitch((arg, from, to) => trace.push(from+'->'+to))
         .start(1);
 
-        sm();
+        sm(42);
         sm.state.should.equal(2);
         trace.should.deep.equal(['1->2']);
 
@@ -175,7 +178,7 @@ describe( 'ArrowSM', () => {
     it( 'resists faulty transitions', done => {
         const sm = new ArrowSM({ one: () => 'two' }).start('one');
 
-        expect( () => sm() ).to.throw(/[Ii]llegal.*one->two/);
+        expect( () => sm(42) ).to.throw(/[Ii]llegal.*one->two/);
         expect( sm.state ).to.equal('one');
 
         done();

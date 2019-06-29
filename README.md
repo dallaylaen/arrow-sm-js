@@ -27,6 +27,8 @@ Multiple independent instances of the same machine can be created.
 (such as `addState` and `onSwitch`)
 and `start(initialState)` method that creates an actual instance.
 
+Both `sm.state` and `sm()` (without argument) return the current state.
+
 That's basically all.
 
 # Synopsis
