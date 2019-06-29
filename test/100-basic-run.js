@@ -79,6 +79,23 @@ describe( 'ArrowSM', () => {
         done();
     });
 
+    it( 'executes enter and leave callback on a loop transition', done => {
+        let trace = [];
+        const sm = new ArrowSM()
+            .addState( 'circular', {
+                decide: ev => 'circular',
+                enter:  ev => trace.push('enter'),
+                leave:  ev => trace.push('leave')
+            })
+            .start('circular');
+
+            trace = [];
+            sm(42);
+            trace.should.deep.equal(['leave', 'enter']);
+
+        done();
+    });
+
     it( 'supports onSwitch', done => {
         const trace = [];
         const sm = new ArrowSM({
