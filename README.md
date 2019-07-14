@@ -37,30 +37,37 @@ A functional finite state machine implementation in JavaScript.
 
 # Description
 
-In Arrow, a *state* is basically a pair of (*name*, *decide(arg)*).
-The *decide* function returns the name of the next state,
-or `undefined` if no transition is needed,
-and possibly some additional value.
+* In ArrowSM, the interface to a state machine *instance*
+is basically a function that receives an *argument* (also called *event*)
+and produces a value.
 
-The machine itself is a one-argument function with a `state` property.
-The argument is passed to the *decider* of its current state.
-Upon transition, the *leave*, *enter*, and *onSwitch* callbacks are called
-if they were specified.
+The current state can be determined by calling the instance without arguments,
+or via its read-only `state` property.
 
-The additional value (if any) is returned to the user.
+* Each instance is composed of *states*. Each state has a unique name
+and maybe *decide*, *enter*, and *leave* callbacks.
 
-The machine can be bound to objects, resulting in `this` correctly set
-in all deciders and callbacks.
+The *decide* callback is crucial.
+It produces the next state's name
+and possibly a value to be returned to the user.
+An `undefined` state means that no transition is needed.
 
-`true`, `false`, and numbers are all valid states.
+The other two manage the transition's side effects.
 
-Multiple independent instances of the same machine can be created.
+* Instances can be bound to objects and/or used as a method.
+In such case, all the callbacks will inherit the correct `this` value.
 
-`new ArrowSM()` returns a builder object with chainable mutators
-(such as `addState` and `onSwitch`)
-and `start(initialState)` method that creates an actual instance.
+`true`, `false`, `null`, and numbers are all valid state names.
 
-Both `sm.state` and `sm()` (without argument) return the current state.
+* A `new ArrowSM()` call produces a *builder* object
+that is used to declare the states, transitions, and callbacks.
+Most of its methods (such as `addState` or `onSwitch`) are chainable mutators.
+
+The `start(initialState)` method is then used to actually create an instance.
+Multiple independent instances of the same machine can thus be created.
+
+* Global `onDecide` and `onSwitch` callbacks are applied before and after
+a transition, respectively.
 
 That's basically all.
 
@@ -68,6 +75,7 @@ That's basically all.
 
 All callbacks follow the same pattern
 `function( trigger, oldState, newState )`.
+Of course `newState` is undefined unless it's determined.
 
 If the SM function is bound to an object, so is any of the callbacks,
 
@@ -117,4 +125,22 @@ Return value is ignored.
 Only after this last callback, the state is updated.
 Exception in any of the above functions interrupts the transition
 and is thrown back to the user.
+
+# Bugs and caveats
+
+* An ArrowSM instance may be bound to different objects, however,
+all such bound instance will share the same state.
+This MAY change in the future.
+
+* New states can be added after an instance was created,
+and will then affect the behavior of existing instance.
+This MAY change in the future.
+
+* Bug reports and patches welcome.
+
+# Copyright and license
+
+Copyright (c) 2019 Konstantin S. Uvarin `<khedin@cpan.org>`.
+
+This program is free software available under the MIT license.
 
