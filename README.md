@@ -81,11 +81,11 @@ If the SM function is bound to an object, so is any of the callbacks,
 
 ## onDecide( trigger, oldState )
 
-`onDecide` may be used to:
+`onDecide` is a callback shared by all states. It may be used to:
 
 * typecheck the event;
 
-* initiate transitions shared by multiple states
+* initiate unconditional and/or shared transitions
 (i.e. 'reset' event that switches the machine to ground state).
 
 If a value is returned, the `decide` is skipped.
@@ -95,7 +95,7 @@ See below for return type.
 
 `decide` (also called `process` in other reactive FSM implementations)
 is the central point of the SM.
-It receives the event(trigger, argument) and returns the new state
+It receives the event (aka trigger or argument) and returns the new state
 as one of:
 
 * `undefined` - no transition is needed, return immediately;
@@ -109,11 +109,13 @@ by the SM instance after all callbacks have finished.
 ## oldState.leave( trigger, oldState, newState )
 
 `leave` is called upon transition from a state.
+
 Return value is ignored.
 
 ## newState.enter( trigger, oldState, newState )
 
 `enter` is called immediately upon entering the state.
+
 Return value is ignored.
 
 ## onSwitch( trigger, oldState, newState )
@@ -125,6 +127,8 @@ Return value is ignored.
 Only after this last callback, the state is updated.
 Exception in any of the above functions interrupts the transition
 and is thrown back to the user.
+
+Return value is ignored.
 
 # Bugs and caveats
 
