@@ -239,4 +239,40 @@ describe( 'ArrowSM', () => {
 
         done();
     });
+
+    'skip test - not ready' ||
+    it ('handles mid-air collisions', done => {
+        const sm = new ArrowSM();
+
+        // states are just integers.
+        // advance ev times, if possible.
+        sm.onDecide( function(ev, old) {
+            if (!(ev > 0)) {
+                return;
+            };
+            console.log( "advance via "+ev+"; state now="+old );
+
+            if (this && this.advance) {
+                this.advance(ev - 1);
+            };
+
+            return old + 1;
+        });
+
+        const trace = [];
+        sm.onSwitch((e, o, n) => { trace.push( [o, n] ) });
+
+        for (let st = 1; st < 10; st++) {
+            sm.addState( st, {} );
+        };
+
+        const advance = sm.start(1);
+        const obj = { advance };
+
+        obj.advance(3);
+
+        trace.should.deep.equal([[undefined, 1], [1, 2], [2, 3]]);
+
+        done();
+    });
 });
