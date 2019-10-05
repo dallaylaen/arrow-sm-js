@@ -252,7 +252,6 @@ describe( 'ArrowSM', () => {
         done();
     });
 
-    'skip test - not ready' ||
     it ('handles mid-air collisions', done => {
         const sm = new ArrowSM();
 
@@ -262,7 +261,6 @@ describe( 'ArrowSM', () => {
             if (!(ev > 0)) {
                 return;
             };
-            console.log( "advance via "+ev+"; state now="+old );
 
             if (this && this.advance) {
                 this.advance(ev - 1);
@@ -283,7 +281,7 @@ describe( 'ArrowSM', () => {
 
         obj.advance(3);
 
-        trace.should.deep.equal([[undefined, 1], [1, 2], [2, 3]]);
+        trace.should.deep.equal([[undefined, 1], [1, 2], [2, 3], [3, 4]]);
 
         done();
     });
