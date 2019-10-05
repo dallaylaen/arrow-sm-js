@@ -160,34 +160,41 @@ describe( 'ArrowSM', () => {
             }
         }).start('life');
 
-        expect( () => sm('hope') ).to.throw(/cannot enter hell/);
+        const prom = sm('hope');
         sm.state.should.equal('life');
 
-        done();
+        prom.catch( ex => {
+            ex.should.match(/cannot enter hell/);
+            done();
+        });
     });
 
-    it( 'can return values', done => {
+    it( 'can return values as promises', async () => {
         const sm = new ArrowSM({
             odd: ev => ['even', -ev],
             even: ev => ['odd', ev]
         }).start('odd');
 
-        expect( sm(5) ).to.equal(-5);
-        expect( sm(6) ).to.equal(6);
-
-        done();
+        expect( await sm(5) ).to.equal(-5);
+        expect( await sm(6) ).to.equal(6);
     });
 
     it( 'resists faulty transitions', done => {
         const sm = new ArrowSM({ one: () => 'two' }).start('one');
 
-        expect( () => sm(42) ).to.throw(/[Ii]llegal.*one->two/);
-        expect( sm.state ).to.equal('one');
+        const prom = sm(42);
 
-        done();
+        prom
+            .then( () => { throw new Error( "foo bared" ) } )
+            .catch( err => {
+                expect( err ).to.match(/[Ii]llegal.*one->two/);
+                expect( sm.state ).to.equal('one');
+
+                done();
+            });
     });
 
-    it( 'can access state in decider', done => {
+    it( 'can access state in decider', (done) => {
         const decide = (to, from) => { if (to !== from) return to };
         const trace = [];
         const enter = (trigger, from, to) => { trace.push(to) };
@@ -206,9 +213,14 @@ describe( 'ArrowSM', () => {
         sticky('two');
         trace.should.deep.equal(['one', 'two']);
 
-        expect( () => sticky('four') ).to.throw(/[Ii]llegal .*four/);
+        const dies = sticky('four');
 
-        done();
+        dies
+            .then( result => { throw new Error( "Unexpected normal return"+result ) } )
+            .catch( err => {
+                err.should.match(/[Ii]llegal.*two.*four/);
+                done();
+            });
     });
 
     it( 'is bindable', done => {
