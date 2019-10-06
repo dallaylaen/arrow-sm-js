@@ -1,11 +1,12 @@
 # ArrowSM
 
-A functional finite state machine implementation in JavaScript.
+A finite state machine implementation in JavaScript.
 
 # Synopsis
 
 ```javascript
-    // Create a builder object to describe the machine
+    // Starts out with a builder object
+    //     so that multiple independent instances can be created
     const sm = new ArrowSM()
 
     // Declare states
@@ -119,6 +120,27 @@ Exception in any of the above functions interrupts the transition
 and is thrown back to the user.
 
 Return value is ignored.
+
+# Examples
+
+## A stateful field in object
+
+```javascript
+// in constructor
+
+this.foo = new ArrowSM()
+    .onDecide( (to, from) => (to === from) ? undefined : to )
+    .addState( 'one' )
+    .addState( 'two', { enter: () => { some_action() } } )
+    .start( 'one' );
+```
+
+This creates `myobj.foo()` method that behaves like a getter/setter,
+except that it only accepts a fixed set of values and can execute callbacks
+upon changing value.
+
+`.onDecide( to => to )` (the `I`-combinator) can be used if loop
+transitions are allowed.
 
 # Bugs and caveats
 
