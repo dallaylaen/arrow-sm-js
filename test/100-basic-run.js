@@ -166,18 +166,6 @@ describe( 'ArrowSM', () => {
         done();
     });
 
-    it( 'can return values', done => {
-        const sm = new ArrowSM({
-            odd: ev => ['even', -ev],
-            even: ev => ['odd', ev]
-        }).start('odd');
-
-        expect( sm(5) ).to.equal(-5);
-        expect( sm(6) ).to.equal(6);
-
-        done();
-    });
-
     it( 'resists faulty transitions', done => {
         const sm = new ArrowSM({ one: () => 'two' }).start('one');
 

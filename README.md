@@ -48,9 +48,9 @@ or via its read-only `state` property.
 and maybe *decide*, *enter*, and *leave* callbacks.
 
 The *decide* callback is crucial.
-It produces the next state's name
-and possibly a value to be returned to the user.
+It produces the next state's name.
 An `undefined` state means that no transition is needed.
+A loop transition _is_ performed if new and old states are the same.
 
 The other two manage the transition's side effects.
 
@@ -89,22 +89,12 @@ If the SM function is bound to an object, so is any of the callbacks,
 (i.e. 'reset' event that switches the machine to ground state).
 
 If a value is returned, the `decide` is skipped.
-See below for return type.
 
 ## oldState.decide( trigger, oldState )
 
 `decide` (also called `process` in other reactive FSM implementations)
 is the central point of the SM.
-It receives the event (aka trigger or argument) and returns the new state
-as one of:
-
-* `undefined` - no transition is needed, return immediately;
-
-* `nextState` - the name of the state to switch to;
-
-* `[ nextState, returnValue ]` - a pair of values.
-The first one is one of the above, whereas the second is returned
-by the SM instance after all callbacks have finished.
+It receives the event (aka trigger or argument) and returns the new state.
 
 ## oldState.leave( trigger, oldState, newState )
 
