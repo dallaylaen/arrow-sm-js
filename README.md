@@ -8,7 +8,7 @@ Each machine is represented by a single function with dual signature:
 
 * Given an argument, or _event_, it decides whether to switch to a new state.
 No (meaningful) value is returned.
-Communication to the outside world is done via callbacks (see below).
+Communication with the outside world is done via callbacks (see below).
 
 The machine function is bindable, so that it can be used as a method
 and/or use an object to maintain auxiliary state.
@@ -55,13 +55,16 @@ All callbacks follow the same pattern
 * initiate unconditional and/or shared transitions
 (i.e. 'reset' event that switches the machine to ground state).
 
-If a value is returned, the `decide` is skipped.
+Returns the identifier of the new state,
+or `undefined` if no decision was made.
 
 ## oldState.decide( trigger, oldState )
 
 `decide` (also called `process` in other reactive FSM implementations)
 is the central point of the SM.
-It receives the event (aka trigger or argument) and returns the new state.
+
+Returns the identifier of the new state,
+or `undefined` if no transition is needed.
 
 ## oldState.leave( trigger, oldState, newState )
 
@@ -81,11 +84,11 @@ Return value is ignored.
 
     sm.onSwitch( (event, from, to) => console.log('DEBUG transition '+from+'->'+to) )
 
+Return value is ignored.
+
 Only after this last callback, the state is updated.
 Exception in any of the above functions interrupts the transition
 and is thrown back to the user.
-
-Return value is ignored.
 
 # Examples
 
@@ -156,6 +159,21 @@ and side effects upon switching:
     // somewhere in constructor
     this.state = enum.start('closed');
 ```
+
+# Reenterability
+
+The Arrow machine is _synchronous_, as in it always has a definite state
+and if state transition is needed, it will happen before the SM function returns.
+
+However, transition callbacks _may_ interact with other objects,
+in particular `this`, and send more events to the same machine.
+
+In this case, all new events are queued and processed one by one.
+Exception in any of the transitions will leave the machine in the last
+successfully reached state, losing all the subsequent events.
+
+Aborted transitions may still lead to inconsistent state,
+and should be either avoided or checked thoroughly.
 
 # Bugs and caveats
 
