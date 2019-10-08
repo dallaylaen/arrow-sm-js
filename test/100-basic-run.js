@@ -237,7 +237,7 @@ describe( 'ArrowSM', () => {
         expect( () => sm.on('decide', 3, ev => ev) ).to.throw(/Illegal.*3/);
 
         const trace = [];
-        sm.on('enter', 1, ev => trace.push(ev));
+        expect( sm.on('enter', 1, ev => trace.push(ev)) ).to.equal(sm);
 
         const inst = sm.start(1);
         inst('back');
