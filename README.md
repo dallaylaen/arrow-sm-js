@@ -7,11 +7,11 @@ Each machine is represented by a single function with dual signature:
 * Without arguments, it returns its current state.
 
 * Given an argument, or _event_, it decides whether to switch to a new state.
-No (meaningful) value is returned.
+Regardless of the decision, the current value of `this` is returned.
 Communication with the outside world is done via callbacks (see below).
 
-The machine function is bindable, so that it can be used as a method
-and/or use an object to maintain auxiliary state.
+The machine function is bindable, so that it can be used as a (chainable) method
+and/or utilize an object to maintain auxiliary state.
 
 # How to build a machine
 
@@ -169,6 +169,7 @@ However, transition callbacks _may_ interact with other objects,
 in particular `this`, and send more events to the same machine.
 
 In this case, all new events are queued and processed one by one.
+
 Exception in any of the transitions will leave the machine in the last
 successfully reached state, losing all the subsequent events.
 

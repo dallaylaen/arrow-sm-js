@@ -220,9 +220,9 @@ describe( 'ArrowSM', () => {
         .start('one');
 
         expect( sm() ).to.equal('one');
-        sm.bind(foo)(137);
+        expect( sm.bind(foo)(137) ).to.equal(foo); // bound value is returned
         expect( sm() ).to.equal('two');
-        expect(count).to.equal(4); // no callbacks were omitted by accident
+        expect( count ).to.equal(4); // no callbacks were omitted by accident
 
         done();
     });
