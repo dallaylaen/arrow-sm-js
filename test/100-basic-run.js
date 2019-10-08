@@ -18,16 +18,16 @@ describe( 'ArrowSM', () => {
         const sm1 = sm.start('sleep');
         const sm2 = sm.start('sleep');
 
-        sm1.state.should.equal('sleep');
-        sm2.state.should.equal('sleep');
+        expect( sm1() ).to.equal('sleep');
+        expect( sm2() ).to.equal('sleep');
 
         sm1('get up');
 
-        sm1.state.should.equal('awake');
-        sm2.state.should.equal('sleep');
+        expect( sm1() ).to.equal('awake');
+        expect( sm2() ).to.equal('sleep');
 
-        expect( sm1() ).to.equal( sm1.state );
-        expect( sm2() ).to.equal( sm2.state );
+        expect( sm1() ).to.equal( sm1() );
+        expect( sm2() ).to.equal( sm2() );
 
         done();
     });
@@ -111,7 +111,7 @@ describe( 'ArrowSM', () => {
         trace = [];
 
         sm(42);
-        sm.state.should.equal(2);
+        expect( sm() ).to.equal(2);
         trace.should.deep.equal(['1->2']);
 
         done();
@@ -128,15 +128,15 @@ describe( 'ArrowSM', () => {
 
         const ship1 = sm.start('stand');
         ship1(1);
-        expect( ship1.state ).to.equal('go');
+        expect( ship1() ).to.equal('go');
         ship1(1);
-        expect( ship1.state ).to.equal('run');
+        expect( ship1() ).to.equal('run');
         ship1(0);
-        expect( ship1.state ).to.equal('stand');
+        expect( ship1() ).to.equal('stand');
 
         const ship2 = sm.start('orbit');
         ship2(1);
-        expect( ship2.state ).to.equal('orbit');
+        expect( ship2() ).to.equal('orbit');
 
         done();
     });
@@ -160,7 +160,7 @@ describe( 'ArrowSM', () => {
         }).start('life');
 
         expect( () => sm('hope') ).to.throw(/cannot enter hell/);
-        sm.state.should.equal('life');
+        expect( sm() ).to.equal('life');
 
         done();
     });
@@ -169,7 +169,7 @@ describe( 'ArrowSM', () => {
         const sm = new ArrowSM({ one: () => 'two' }).start('one');
 
         expect( () => sm(42) ).to.throw(/[Ii]llegal.*one->two/);
-        expect( sm.state ).to.equal('one');
+        expect( sm() ).to.equal('one');
 
         done();
     });
@@ -219,9 +219,9 @@ describe( 'ArrowSM', () => {
         .onSwitch( function(ev) { if (ev) check(this); })
         .start('one');
 
-        expect( sm.state ).to.equal('one');
+        expect( sm() ).to.equal('one');
         sm.bind(foo)(137);
-        expect( sm.state ).to.equal('two');
+        expect( sm() ).to.equal('two');
         expect(count).to.equal(4); // no callbacks were omitted by accident
 
         done();
