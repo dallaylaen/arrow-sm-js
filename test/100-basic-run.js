@@ -13,7 +13,7 @@ describe( 'ArrowSM', () => {
         });
 
         expect( () => sm.start('none') ).to.throw(/[Ii]llegal/);
-        expect( () => sm.start() ).to.throw(/[Ii]llegal/);
+        expect( () => sm.start() ).to.throw(/No initial/);
 
         const sm1 = sm.start('sleep');
         const sm2 = sm.start('sleep');
@@ -244,6 +244,36 @@ describe( 'ArrowSM', () => {
         expect(inst()).to.equal(2);
         inst('forth');
         expect(trace).to.deep.equal([undefined, 'forth']);
+
+        done();
+    });
+
+    it( 'provides default initial state', done => {
+        const sm = new ArrowSM();
+        expect( () => sm.initialState('someState') ).to.throw(/nonexistent.*someState/);
+        sm.addState('someState');
+        expect( sm.initialState('someState') ).to.equal(sm);
+
+        expect ( () => sm.addState('otherState', { default: 1 }) )
+            .to.throw(/multiple.*someState.*otherState/);
+
+        const inst = sm.start();
+        expect( inst() ).to.equal('someState');
+
+        done();
+    });
+
+    it( 'provides default initial state via map', done => {
+        const toggle = new ArrowSM({
+            off: { decide: ev => 'on', default: true },
+            on:  { decide: ev => 'off' },
+        });
+
+        const tog = toggle.start();
+
+        expect( tog( ) ).to.equal('off');
+        expect( tog(1) ).to.equal(undefined); // returned a this which is undef
+        expect( tog( ) ).to.equal('on');      // switched state
 
         done();
     });
