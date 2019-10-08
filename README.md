@@ -1,84 +1,50 @@
-# ArrowSM
-
-A finite state machine implementation in JavaScript.
-
-# Synopsis
-
-```javascript
-    // Starts out with a builder object
-    //     so that multiple independent instances can be created
-    const sm = new ArrowSM()
-
-    // Declare states
-        .addState( 'name', {
-            decide: arg => ..., // returns the next state
-            enter:  arg => ..., // side-effects upon entering the state
-            leave:  arg => ..., // side-effects upon leaving the state
-        })
-
-    // Declare global callbacks
-        .onDecide( arg => ... ) // type-checks & unconditional switches
-        .onSwitch( (arg, from, to) => { console.log( from, '->', to, ' due to ', arg ) }
-
-    // run the machine instance
-        .start( 'initialState' )
-
-    // if needed, attach an object with additional state
-        .bind( myObject );
-
-    // get the current state
-    sm();
-    sm.state; // ditto
-
-    // switch the machine
-    // this runs onDecide, decide, leave, enter, and onSwitch callbacks
-    // in that order
-    sm( event );
-```
-
 # Description
 
-* In ArrowSM, the interface to a state machine *instance*
-is basically a function that receives an *argument* (also called *event*)
-and produces a value.
+**Arrow SM** is a finite state machine implementation in JavaScript.
 
-The current state can be determined by calling the instance without arguments,
-or via its read-only `state` property.
+Each machine is represented by a single function with dual signature:
 
-* Each instance is composed of *states*. Each state has a unique name
-and maybe *decide*, *enter*, and *leave* callbacks.
+* Without arguments, it returns its current state.
 
-The *decide* callback is crucial.
-It produces the next state's name.
-An `undefined` state means that no transition is needed.
-A loop transition _is_ performed if new and old states are the same.
+* Given an argument, or _event_, it decides whether to switch to a new state.
+No (meaningful) value is returned.
+Communication to the outside world is done via callbacks (see below).
 
-The other two manage the transition's side effects.
+The machine function is bindable, so that it can be used as a method
+and/or use an object to maintain auxiliary state.
 
-* Instances can be bound to objects and/or used as a method.
-In such case, all the callbacks will inherit the correct `this` value.
+# How to build a machine
 
-`true`, `false`, `null`, and numbers are all valid state names.
+`new ArrowSM()` creates a machine template, or a  _builder_ object.
+Its methods are mostly _mutators_ which can be chained.
+Multiple independent machines with the same logic can thus be created.
 
-* A `new ArrowSM()` call produces a *builder* object
-that is used to declare the states, transitions, and callbacks.
-Most of its methods (such as `addState` or `onSwitch`) are chainable mutators.
+`addState(stateId, functionMap)` is used to create individual states.
+Each state has a unique identifier that may be a boolean, a number, or a string.
+As of current, numbers/booleans are _not_ distinguished
+from their string representation, so be careful.
 
-The `start(initialState)` method is then used to actually create an instance.
-Multiple independent instances of the same machine can thus be created.
+Each state is mapped to a set of callbacks:
 
-* Global `onDecide` and `onSwitch` callbacks are applied before and after
-a transition, respectively.
+* `enter` is run upon entering a state;
 
-That's basically all.
+* `decide` is run when the machine receives an event;
 
-# Callback order
+* `leave` is run upon leaving a state.
+
+Additionally, two global callbacks may be defined:
+
+* `onDecide` is executed before running the current state's `decide`;
+
+* and `onSwitch` is executed before finalizing the transition.
+
+Finally, `start(initialState)` method must be called
+that returns a machine.
+
+# Callback execution order
 
 All callbacks follow the same pattern
 `function( trigger, oldState, newState )`.
-Of course `newState` is undefined unless it's determined.
-
-If the SM function is bound to an object, so is any of the callbacks,
 
 ## onDecide( trigger, oldState )
 
@@ -123,24 +89,73 @@ Return value is ignored.
 
 # Examples
 
-## A stateful field in object
+A simplest machine can be built using a map of states and decider functions
+for each state:
 
 ```javascript
-// in constructor
+    const loop = new ArrowSM({
+        1: ev => 2,
+        2: ev => 3,
+        3: ev => 1,
+    }).start(1);
 
-this.foo = new ArrowSM()
-    .onDecide( (to, from) => (to === from) ? undefined : to )
-    .addState( 'one' )
-    .addState( 'two', { enter: () => { some_action() } } )
-    .start( 'one' );
+    loop();       // 1
+    loop('next'); // undefined
+    loop();       // 2
 ```
 
-This creates `myobj.foo()` method that behaves like a getter/setter,
-except that it only accepts a fixed set of values and can execute callbacks
-upon changing value.
+A more formal definition may instead define states separately.
+The builder object (as created by `new ArrowSM()`) has mostly
+mutator methods that return itself and can thus be chained.
 
-`.onDecide( to => to )` (the `I`-combinator) can be used if loop
-transitions are allowed.
+```javascript
+    const complexMachine = new ArrowSM()
+        .addState( 'name', {
+            decide: (event, thisState) => { ... },
+            enter:  (event, previousState, thisState) => { ... },
+            leave:  (event, thisState, nextState) => { ... },
+        })
+        // ...more states here
+```
+
+Sometimes there's no need to create separate decider functions:
+
+```javascript
+    const toggle = new ArrowSM()
+        .onDecide( (event, currentState) => !currentState )
+        .addState(true)
+        .addState(false)
+        .on( 'enter', true, function () { ... } )
+        .start(false);
+```
+
+Set a state by hand (most SM implementations out there seem to do that)? Easy.
+
+```javascript
+    const enum = new ArrowSM()
+        .onDecide( switchTo => switchTo )
+        .addState( 'open' )
+        .addState( 'closed' )
+        .addState( 'in progress' );
+```
+
+Ditto, but doesn't perform a loop transition if new state is the same as old:
+
+```javascript
+    const stickyEnum = new ArrowSM()
+        .onDecide( (switchTo, currentState) => (switchTo === currentState) ? undefined : switchTo )
+        .addState( 'open' )
+        .addState( 'closed' )
+        .addState( 'in progress' );
+```
+
+The above examples can be used to create a field with fixed set of values
+and side effects upon switching:
+
+```javascript
+    // somewhere in constructor
+    this.state = enum.start('closed');
+```
 
 # Bugs and caveats
 
