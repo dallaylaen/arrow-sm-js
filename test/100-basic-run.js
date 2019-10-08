@@ -226,4 +226,25 @@ describe( 'ArrowSM', () => {
 
         done();
     });
+
+    it( 'has on() method', done => {
+        const sm = new ArrowSM({
+            1: ev => 2,
+            2: ev => 1,
+        });
+
+        expect( () => sm.on('click', 1, ev => ev) ).to.throw(/Illegal.*click/);
+        expect( () => sm.on('decide', 3, ev => ev) ).to.throw(/Illegal.*3/);
+
+        const trace = [];
+        sm.on('enter', 1, ev => trace.push(ev));
+
+        const inst = sm.start(1);
+        inst('back');
+        expect(inst()).to.equal(2);
+        inst('forth');
+        expect(trace).to.deep.equal([undefined, 'forth']);
+
+        done();
+    });
 });
