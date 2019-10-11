@@ -1,0 +1,59 @@
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Arrow SM - a finite state machine in javascript</title>
+    <script lang="javascript" src="js/arrow-sm.js"></script>
+    <script lang="javascript">
+        window.onerror = function(msg) {
+            document.getElementById("error").innerHTML += '<div>'+msg+'</div>';
+        };
+    </script>
+    <style>
+        #state {
+            color: blue;
+        }
+        #display {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div id="error" style="color: red"></div>
+    <h1>State machine example - ArrowSM</h1>
+
+    <!-- initial node to attach to -->
+    <div id="root">
+        <h2>Toggle button</h2>
+        <button id="toggle">inactive</button>
+        <h2>Loop button</h2>
+        <button id="loop">inactive</button>
+    </div>
+
+    <!-- the script is here -->
+    <script lang="javascript" id="main">
+        'use strict';
+
+        const toggleButton = document.getElementById('toggle');
+
+        const toggle = new ArrowSM()
+            .addState(true)
+            .addState(false)
+            .onDecide((e,o)=>!o)
+            .onSwitch(console.log)
+            .start(false);
+
+        toggleButton.onclick = function(ev) { toggle(ev); this.innerHTML = toggle() };
+
+        const loopButton = document.getElementById('loop');
+        const loop = new ArrowSM({
+            one: _   => 'two',
+            two: _   => 'three',
+            three: _ => 'one',
+        })
+            .onSwitch(console.log)
+            .start('one');
+
+        loopButton.onclick = function(ev) { loop(ev); this.innerHTML = loop() };
+    </script>
+</body>
+</html>
