@@ -30,7 +30,7 @@ mixin example(item)
             |       $('state-#{item.id}-'+n).innerHTML = '<b>'+n+'</b>';
             |   })
             each state in item.states
-                | .addState( #{typeof state.name === string ? "'"+state.name+"'" : state.name }, {
+                | .addState( #{(s=>typeof(s)==='string'?"'"+s+"'":s)(state.name) }, {
                 each entry in ['decide', 'enter', 'leave' ]
                     if state[entry]
                         | #{entry} : #{state[entry]},
@@ -38,7 +38,7 @@ mixin example(item)
                 |
             if item.onDecide
                 | .onDecide(#{item.onDecide})
-            |   .start(#{item.initial});
+            |   .start(#{(s=>typeof(s)==='string'?"'"+s+"'":s)(item.initial)});
 html
     head
         meta(http-equiv="Content-Type" content="text/html; charset=utf-8")
@@ -69,6 +69,19 @@ const examples = [
             'click me',
         ],
         initial: true,
+    },
+    {
+        name: 'Triple loop',
+        descr: 'Three states switching in circle',
+        states: [
+            { name: 'one', descr: 'one', decide: 'function() { return \'two\' }' },
+            { name: 'two', descr: 'two', decide: 'function() { return \'three\' }' },
+            { name: 'three', descr: 'three', decide: 'function() { return \'one\' }' },
+        ],
+        events: [
+            'click me',
+        ],
+        initial: 'one',
     },
 ].map((x,i)=>1&&{ id: i+1, ...x });
 

@@ -1,5 +1,6 @@
 div.example {
     display: inline-block;
+    vertical-align: top;
     border: grey solid 1px;
     padding: 0.4em;
     margin: 0.4em;
