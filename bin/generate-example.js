@@ -83,6 +83,23 @@ const examples = [
         ],
         initial: 'one',
     },
+    {
+        name: 'Sticky enum',
+        descr: 'Fixed states, no loop transition',
+        onDecide: 'function(e,o){ return e !== o ? e : undefined }',
+        states: [
+            { name: 'one' },
+            { name: 'two' },
+            { name: 'three' },
+        ],
+        events: [
+            'one',
+            'two',
+            'three',
+            'four',
+        ],
+        initial: 'one',
+    }
 ].map((x,i)=>1&&{ id: i+1, ...x });
 
 process.stdout.write(fun({
