@@ -1,0 +1,23 @@
+div.example {
+    display: inline-block;
+    border: grey solid 1px;
+    padding: 0.4em;
+    margin: 0.4em;
+    width: 20em;
+}
+
+.state-name {
+    display: inline-block;
+    border: grey solid 1px;
+    padding: 0.4em;
+    margin: 0.4em;
+    font-weight: bold;
+}
+
+.state-name b {
+    background-color: yellow;
+}
+
+.state {
+    border: solid grey 1px;
+}

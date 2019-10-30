@@ -13,26 +13,31 @@ mixin example(item)
         h2 #{item.name}
         p #{item.descr}
         each state in item.states
-            div
-                span.state(id='state-'+item.id+'-'+state.name) #{state.name}
+            div.state
+                span.state-name(id='state-'+item.id+'-'+state.name) #{state.name}
                 span.state-descr #{state.descr}
         div
             each ev in item.events
                 button(onclick='sm'+item.id+"('"+ev+"')") #{ev}
-        div(id='log'+item.id)
+        div(id='log-'+item.id)
         script
             |
             | var sm#{item.id} = new ArrowSM()
             |   .onSwitch( function (e,o,n) {
-            |       document.getElementById('log#{item.id}').innerHTML = o+' -> '+n+' via '+e;
+            |       $('log-#{item.id}').innerHTML = o+' -> '+n+' via '+e;
+            |       if (o !== undefined)
+            |           $('state-#{item.id}-'+o).innerHTML = o;
+            |       $('state-#{item.id}-'+n).innerHTML = '<b>'+n+'</b>';
             |   })
-            each state in item.states 
+            each state in item.states
                 | .addState( #{typeof state.name === string ? "'"+state.name+"'" : state.name }, {
                 each entry in ['decide', 'enter', 'leave' ]
                     if state[entry]
                         | #{entry} : #{state[entry]},
                 | })
                 |
+            if item.onDecide
+                | .onDecide(#{item.onDecide})
             |   .start(#{item.initial});
 html
     head
@@ -41,6 +46,7 @@ html
         script(src='js/arrow-sm.js')
         script
             | function $(str) { return document.getElementById(str) }
+        link(rel='stylesheet' href='css/main.css')
     body
         h1 #{title}
 
@@ -55,11 +61,12 @@ const examples = [
         name: 'Foo bar',
         descr: 'Lorem ipsum wtf there was',
         states: [
-            { name: true, descr: 'Default toggle switch', decide: 'function() { return false}' },
-            { name: false, descr: 'Other toggle switch', decide: 'function() { return true}' },
+            { name: true, descr: 'Default toggle switch' },
+            { name: false, descr: 'Other toggle switch. Very long and complex description because why not?' },
         ],
+        onDecide: 'function(e,o) { return !o }',
         events: [
-            'toggle',
+            'click me',
         ],
         initial: true,
     },
