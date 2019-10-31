@@ -1,11 +1,28 @@
 #!/usr/bin/env js
 
 'use strict';
+const fs = require('fs');
 const pug = require('pug');
 
 global.str = x => typeof x === 'string' ? "'"+x+"'" : x;
 
-const fun = pug.compile(`
+const mkHtml = pug.compile(getTemplate(), { pretty: true, globals: ['str' ] });
+
+const [node, self, ...list] = process.argv;
+
+const examples = list.sort().map(x=>{
+    const slurp = fs.readFileSync(x);
+    return JSON.parse(slurp);
+    // TODO add source reference
+});
+
+process.stdout.write(mkHtml({
+    title: 'ArrowSM examples',
+    examples: examples.map((x,i)=>1&&{ id: i+1, ...x }),
+}));
+
+
+function getTemplate() {return `
 mixin example(item)
     div(class='example' id='example-'+item.id)
         h2 #{item.name}
@@ -52,74 +69,5 @@ html
             +example(item)
 
         script(source='js/arrow-sm.js')
-`, { pretty: true, globals: ['str' ] });
+`};
 
-const examples = [
-    {
-        name: 'Foo bar',
-        descr: 'Lorem ipsum wtf there was',
-        states: [
-            { name: true, descr: 'Default toggle switch' },
-            { name: false, descr: 'Other toggle switch. Very long and complex description because why not?' },
-        ],
-        onDecide: 'function(e,o) { return !o }',
-        events: [
-            'click me',
-        ],
-        initial: true,
-    },
-    {
-        name: 'Triple loop',
-        descr: 'Three states switching in circle',
-        states: [
-            { name: 'one', descr: 'one', decide: 'x => "two"' },
-            { name: 'two', descr: 'two', decide: 'x => "three"' },
-            { name: 'three', descr: 'three', decide: 'x => "one"' },
-        ],
-        events: [
-            'click me',
-        ],
-        initial: 'one',
-    },
-    {
-        name: 'Sticky enum',
-        descr: 'Fixed states, no loop transition',
-        onDecide: 'function(e,o){ return e !== o ? e : undefined }',
-        states: [
-            { name: 'one' },
-            { name: 'two' },
-            { name: 'three' },
-        ],
-        events: [
-            'one',
-            'two',
-            'three',
-            'four',
-        ],
-        initial: 'one',
-    },
-    {
-        name: 'Stage progression',
-        descr: 'next, next, next',
-        onDecide: 'e=>{ if (e === \'reset\') return \'start\'; }',
-        states: [
-            { name: 'start',  decide: 'e=>{if (e === "next") return "step1"}' },
-            { name: 'step1',  decide: 'e=>{if (e === "next") return "step2"}' },
-            { name: 'step2',  decide: 'e=>{if (e === "next") return "step3"}' },
-            { name: 'step3',  decide: 'e=>{if (e === "next") return "finish"}' },
-            { name: 'finish', decide: 'e=>{if (e === "finish") return "start"}', },
-        ],
-        events: [
-            'next',
-            'reset',
-            'finish',
-        ],
-        initial: 'start',
-    },
-].map((x,i)=>1&&{ id: i+1, ...x });
-
-process.stdout.write(fun({
-    pretty: true,
-    title: 'ArrowSM examples',
-    examples: examples,
-}));

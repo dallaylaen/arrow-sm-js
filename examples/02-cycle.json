@@ -1,0 +1,26 @@
+{
+    "name": "Triple loop",
+    "descr": "Three states switching in circle",
+    "states": [
+        {
+            "name": "one",
+            "descr": "one",
+            "decide": "x => \"two\""
+        },
+        {
+            "name": "two",
+            "descr": "two",
+            "decide": "x => \"three\""
+        },
+        {
+            "name": "three",
+            "descr": "three",
+            "decide": "x => \"one\""
+        }
+    ],
+    "events": [
+        "click me"
+    ],
+    "initial": "one"
+}
+

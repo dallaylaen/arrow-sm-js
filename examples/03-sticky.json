@@ -1,0 +1,24 @@
+{
+    "name": "Sticky enum",
+    "descr": "Fixed states, no loop transition",
+    "onDecide": "function(e,o){ return e !== o ? e : undefined }",
+    "states": [
+        {
+            "name": "one"
+        },
+        {
+            "name": "two"
+        },
+        {
+            "name": "three"
+        }
+    ],
+    "events": [
+        "one",
+        "two",
+        "three",
+        "four"
+    ],
+    "initial": "one"
+}
+

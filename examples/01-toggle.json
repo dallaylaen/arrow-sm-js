@@ -1,0 +1,19 @@
+{
+    "name": "Foo bar",
+    "descr": "Lorem ipsum wtf there was",
+    "states": [
+        {
+            "name": true,
+            "descr": "Default toggle switch"
+        },
+        {
+            "name": false,
+            "descr": "Other toggle switch. Very long and complex description because why not?"
+        }
+    ],
+    "onDecide": "function(e,o) { return !o }",
+    "events": [
+        "click me"
+    ],
+    "initial": true
+}

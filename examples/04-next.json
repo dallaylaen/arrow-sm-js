@@ -1,0 +1,34 @@
+{
+    "name": "Stage progression",
+    "descr": "next, next, next",
+    "onDecide": "e=>{ if (e === 'reset') return 'start'; }",
+    "states": [
+        {
+            "name": "start",
+            "decide": "e=>{if (e === \"next\") return \"step1\"}"
+        },
+        {
+            "name": "step1",
+            "decide": "e=>{if (e === \"next\") return \"step2\"}"
+        },
+        {
+            "name": "step2",
+            "decide": "e=>{if (e === \"next\") return \"step3\"}"
+        },
+        {
+            "name": "step3",
+            "decide": "e=>{if (e === \"next\") return \"finish\"}"
+        },
+        {
+            "name": "finish",
+            "decide": "e=>{if (e === \"finish\") return \"start\"}"
+        }
+    ],
+    "events": [
+        "next",
+        "reset",
+        "finish"
+    ],
+    "initial": "start"
+}
+
