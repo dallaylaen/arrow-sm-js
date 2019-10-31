@@ -3,9 +3,7 @@
 'use strict';
 const pug = require('pug');
 
-function str(x) {
-    return typeof x === 'string' ? "'"+x+"'" : x;
-};
+global.str = x => typeof x === 'string' ? "'"+x+"'" : x;
 
 const fun = pug.compile(`
 mixin example(item)
@@ -30,15 +28,15 @@ mixin example(item)
             |       $('state-#{item.id}-'+n).innerHTML = '<b>'+n+'</b>';
             |   })
             each state in item.states
-                | .addState( #{(s=>typeof(s)==='string'?"'"+s+"'":s)(state.name) }, {
+                | .addState( #{str(state.name) }, {
                 each entry in ['decide', 'enter', 'leave' ]
                     if state[entry]
-                        | #{entry} : #{state[entry]},
+                        | #{entry} : !{state[entry]},
                 | })
                 |
             if item.onDecide
-                | .onDecide(#{item.onDecide})
-            |   .start(#{(s=>typeof(s)==='string'?"'"+s+"'":s)(item.initial)});
+                | .onDecide(!{item.onDecide})
+            |   .start(#{str(item.initial)});
 html
     head
         meta(http-equiv="Content-Type" content="text/html; charset=utf-8")
@@ -54,7 +52,7 @@ html
             +example(item)
 
         script(source='js/arrow-sm.js')
-`, { pretty: true });
+`, { pretty: true, globals: ['str' ] });
 
 const examples = [
     {
@@ -74,9 +72,9 @@ const examples = [
         name: 'Triple loop',
         descr: 'Three states switching in circle',
         states: [
-            { name: 'one', descr: 'one', decide: 'function() { return \'two\' }' },
-            { name: 'two', descr: 'two', decide: 'function() { return \'three\' }' },
-            { name: 'three', descr: 'three', decide: 'function() { return \'one\' }' },
+            { name: 'one', descr: 'one', decide: 'x => "two"' },
+            { name: 'two', descr: 'two', decide: 'x => "three"' },
+            { name: 'three', descr: 'three', decide: 'x => "one"' },
         ],
         events: [
             'click me',
@@ -99,7 +97,25 @@ const examples = [
             'four',
         ],
         initial: 'one',
-    }
+    },
+    {
+        name: 'Stage progression',
+        descr: 'next, next, next',
+        onDecide: 'e=>{ if (e === \'reset\') return \'start\'; }',
+        states: [
+            { name: 'start',  decide: 'e=>{if (e === "next") return "step1"}' },
+            { name: 'step1',  decide: 'e=>{if (e === "next") return "step2"}' },
+            { name: 'step2',  decide: 'e=>{if (e === "next") return "step3"}' },
+            { name: 'step3',  decide: 'e=>{if (e === "next") return "finish"}' },
+            { name: 'finish', decide: 'e=>{if (e === "finish") return "start"}', },
+        ],
+        events: [
+            'next',
+            'reset',
+            'finish',
+        ],
+        initial: 'start',
+    },
 ].map((x,i)=>1&&{ id: i+1, ...x });
 
 process.stdout.write(fun({
