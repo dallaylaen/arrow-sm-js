@@ -15,7 +15,7 @@ div.example {
     font-weight: bold;
 }
 
-.state-name b {
+.state-current {
     background-color: yellow;
 }
 

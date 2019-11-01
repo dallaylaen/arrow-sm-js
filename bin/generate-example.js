@@ -41,8 +41,8 @@ mixin example(item)
             |   .onSwitch( function (e,o,n) {
             |       $('log-#{item.id}').innerHTML = o+' -> '+n+' via '+e;
             |       if (o !== undefined)
-            |           $('state-#{item.id}-'+o).innerHTML = o;
-            |       $('state-#{item.id}-'+n).innerHTML = '<b>'+n+'</b>';
+            |           $('state-#{item.id}-'+o).classList.remove("state-current");
+            |       $('state-#{item.id}-'+n).classList.add("state-current");
             |   })
             each state in item.states
                 | .addState( #{str(state.name) }, {
